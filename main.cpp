@@ -32,7 +32,7 @@ struct Piece {
     {0, 0, 0, 0},
     {0, 0, 0, 0}
   };
-
+  static const int canvasSize{4};
   int x {0};
   int y {0};
 };
@@ -100,7 +100,7 @@ class TetrisBoard {
 
   public:
   TetrisBoard() {
-    activePiece.reset(new SquarePiece{});
+    activePiece.reset(new LinePiece{});
     for(auto i = 0; i < width; i++) {
       board.emplace_back(std::vector<BlockType>{});
       for(auto j = 0; j < height; j++) {
@@ -110,15 +110,48 @@ class TetrisBoard {
   }
   ~TetrisBoard() {}
 
+  bool hasBottomCollided() {
+    // Find bottom coords of piece
+    std::vector<std::pair<int, int>> bottomCoords{};
+    for(auto i = activePiece->canvasSize - 1; i > -1; i--) {
+      for(auto j = activePiece->canvasSize - 1; j > -1; j--) {
+        if(activePiece->shape[j][i]) {
+          bottomCoords.emplace_back(std::pair<int, int>{i, j});
+          break;
+        }
+      }
+    }
+
+    for(auto i = bottomCoords.begin(); i != bottomCoords.end(); i++) {
+      auto x = i->first + activePiece->x;
+      auto y = i->second + activePiece->y;
+      if(y >= height - 1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void mergePieceToBoard() {
+
+  }
+
   void update(float dt) {
     currentTime += dt;
     if(nextUpdate < currentTime){
       activePiece->y++;
       nextUpdate = currentTime + 100;
     }
+
+    if(hasBottomCollided()) {
+      mergePieceToBoard();
+
+      // TODO: Random piece
+      activePiece.reset(new TPiece{});
+    }
   }
 
-  void setColor(BlockType type) {
+  void setBlockColor(BlockType type) {
     switch(type) {
       case BlockType::RED:
         SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
@@ -138,7 +171,7 @@ class TetrisBoard {
   }
 
   void renderFallingPiece() {
-    setColor(activePiece->type);
+    setBlockColor(activePiece->type);
     for(auto i = 0; i < 4; ++i) {
       for(auto j = 0; j < 4; ++j) {
         if(activePiece->shape[j][i]) {
@@ -164,7 +197,7 @@ class TetrisBoard {
         rect.h = squareSize;
 
         auto block = board[i][j];
-        setColor(block);
+        setBlockColor(block);
         if(block == BlockType::EMTPY) {
           SDL_RenderDrawRect(gRenderer, &rect);
         } else {
