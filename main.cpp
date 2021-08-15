@@ -19,7 +19,8 @@ enum BlockType {
   EMTPY,
   RED,
   GREEN,
-  BLUE
+  BLUE,
+  PURPLE
 };
 
 struct Piece {
@@ -59,6 +60,21 @@ struct LinePiece : public Piece {
       {0, 1, 0, 0},
       {0, 1, 0, 0},
       {0, 1, 0, 0}
+    };
+
+    x = 0;
+    y = 0;
+  }
+};
+
+struct TPiece : public Piece {
+  TPiece() {
+    type = BlockType::PURPLE;
+    shape = {
+      {0, 0, 0, 0},
+      {0, 0, 0, 0},
+      {0, 1, 0, 0},
+      {1, 1, 1, 0}
     };
 
     x = 0;
@@ -112,6 +128,9 @@ class TetrisBoard {
         break;
       case BlockType::BLUE:
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 255, 255);
+        break;
+      case BlockType::PURPLE:
+        SDL_SetRenderDrawColor(gRenderer, 128, 0, 128, 255);
         break;
       default:
         SDL_SetRenderDrawColor(gRenderer, 100, 100, 100, 100);
