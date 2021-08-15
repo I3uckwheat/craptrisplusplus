@@ -3,6 +3,7 @@
 #include <iostream>
 #include <exception>
 #include <cstdint>
+#include <memory>
 
 const int SCREEN_WIDTH{ 640 };
 const int SCREEN_HEIGHT{ 480 };
@@ -22,15 +23,47 @@ enum BlockType {
 };
 
 struct Piece {
-  BlockType type{BlockType::RED};
+  virtual ~Piece() {};
+  BlockType type{BlockType::EMTPY};
   std::vector<std::vector<bool>> shape {
     {0, 0, 0, 0},
     {0, 0, 0, 0},
-    {0, 1, 1, 0},
-    {0, 1, 1, 0}
+    {0, 0, 0, 0},
+    {0, 0, 0, 0}
   };
-  int x { -1 };
-  int y { -2 };
+
+  int x {0};
+  int y {0};
+};
+
+struct SquarePiece : public Piece {
+  SquarePiece() {
+    type = BlockType::GREEN;
+    shape = {
+      {0, 0, 0, 0},
+      {0, 0, 0, 0},
+      {0, 1, 1, 0},
+      {0, 1, 1, 0}
+    };
+
+    x = 0;
+    y = 0;
+  }
+};
+
+struct LinePiece : public Piece {
+  LinePiece() {
+    type = BlockType::BLUE;
+    shape = {
+      {0, 1, 0, 0},
+      {0, 1, 0, 0},
+      {0, 1, 0, 0},
+      {0, 1, 0, 0}
+    };
+
+    x = 0;
+    y = 0;
+  }
 };
 
 class TetrisBoard {
@@ -47,38 +80,52 @@ class TetrisBoard {
   std::vector<std::vector<BlockType>> board {};
   SDL_Rect playField{playFieldX, 0, playFieldWidth, playFieldHeight};
 
-  // Place holder square piece
-  Piece activePiece;
+  std::unique_ptr<Piece> activePiece;
 
   public:
   TetrisBoard() {
+    activePiece.reset(new SquarePiece{});
     for(auto i = 0; i < width; i++) {
       board.emplace_back(std::vector<BlockType>{});
       for(auto j = 0; j < height; j++) {
         board[i].emplace_back(BlockType::EMTPY);
       }
     }
-  };
+  }
+  ~TetrisBoard() {}
 
   void update(float dt) {
     currentTime += dt;
-    std::cout<<currentTime<<std::endl;
     if(nextUpdate < currentTime){
-      activePiece.y++;
+      activePiece->y++;
       nextUpdate = currentTime + 100;
     }
   }
 
+  void setColor(BlockType type) {
+    switch(type) {
+      case BlockType::RED:
+        SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+        break;
+      case BlockType::GREEN:
+        SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
+        break;
+      case BlockType::BLUE:
+        SDL_SetRenderDrawColor(gRenderer, 0, 0, 255, 255);
+        break;
+      default:
+        SDL_SetRenderDrawColor(gRenderer, 100, 100, 100, 100);
+    }
+  }
+
   void renderFallingPiece() {
-    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+    setColor(activePiece->type);
     for(auto i = 0; i < 4; ++i) {
       for(auto j = 0; j < 4; ++j) {
-        if(activePiece.shape[j][i]) {
-          std::cout<<i<<std::endl;
-
+        if(activePiece->shape[j][i]) {
           SDL_Rect rect{};
-          rect.x = (squareSize * (i + activePiece.x)) + playFieldX;
-          rect.y = squareSize * (j + activePiece.y);
+          rect.x = (squareSize * (i + activePiece->x)) + playFieldX;
+          rect.y = squareSize * (j + activePiece->y);
           rect.w = squareSize;
           rect.h = squareSize;
 
@@ -98,20 +145,7 @@ class TetrisBoard {
         rect.h = squareSize;
 
         auto block = board[i][j];
-        switch(block) {
-          case BlockType::RED:
-            SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
-            break;
-          case BlockType::GREEN:
-            SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
-            break;
-          case BlockType::BLUE:
-            SDL_SetRenderDrawColor(gRenderer, 0, 0, 255, 255);
-            break;
-          default:
-            SDL_SetRenderDrawColor(gRenderer, 100, 100, 100, 100);
-        }
-
+        setColor(block);
         if(block == BlockType::EMTPY) {
           SDL_RenderDrawRect(gRenderer, &rect);
         } else {
