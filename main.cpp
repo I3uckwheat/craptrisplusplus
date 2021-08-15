@@ -6,6 +6,8 @@
 
 const int SCREEN_WIDTH{ 640 };
 const int SCREEN_HEIGHT{ 480 };
+const int SCREEN_FPS{ 24 };
+const int SCREEN_TICKS_PER_FRAME{ 1000 / SCREEN_FPS };
 
 SDL_Window* gWindow{NULL};
 SDL_Renderer* gRenderer{NULL};
@@ -36,8 +38,10 @@ class TetrisBoard {
   const int squareSize{playFieldHeight / height};
   const int playFieldWidth{(width * squareSize) + 1};
   const int playFieldX{(SCREEN_WIDTH / 3) - 1};
+
   std::vector<std::vector<BlockType>> board {};
   SDL_Rect playField{playFieldX, 0, playFieldWidth, playFieldHeight};
+  int counter{0};
 
   public:
   TetrisBoard() {
@@ -47,17 +51,11 @@ class TetrisBoard {
         board[i].emplace_back(BlockType::EMTPY);
       }
     }
-
-    board[2][18] = BlockType::RED;
-    board[2][19] = BlockType::RED;
-    board[3][19] = BlockType::RED;
-    board[4][19] = BlockType::RED;
-
-    board[5][5] = BlockType::BLUE;
-    board[6][5] = BlockType::BLUE;
-    board[7][5] = BlockType::BLUE;
-    board[8][5] = BlockType::BLUE;
   };
+
+  void update(float dt) {
+    std::cout<<dt<<std::endl;
+  }
 
   void renderSquares() {
     for(auto i = 0; i < width; i++) {
@@ -117,15 +115,13 @@ void init() {
 
 int main(int argc, char* args[]) {
   TetrisBoard tetrisBoard{};
+
   try {
     init();
     SDL_Event e;
+    uint32_t nextIterationTime = SDL_GetTicks() + SCREEN_TICKS_PER_FRAME;
 
-    uint32_t mTicksCount = SDL_GetTicks();
-    float dt = (SDL_GetTicks() - mTicksCount) / 1000.0f;
-    if(dt > 0.05f) dt = 0.05f;
     bool quit{false};
-
     while(!quit) {
       tetrisBoard.render();
       SDL_RenderPresent(gRenderer);
@@ -135,6 +131,17 @@ int main(int argc, char* args[]) {
           quit = true;
         }
       }
+
+      uint32_t now { SDL_GetTicks() };
+      if(nextIterationTime > now) {
+        SDL_Delay(nextIterationTime - now);
+      } else {
+        nextIterationTime += SCREEN_TICKS_PER_FRAME;
+      }
+
+      // tetrisBoard.update(dt);
+
+
     }
   } catch (std::runtime_error e) {
     std::cout<<e.what()<<std::endl;
