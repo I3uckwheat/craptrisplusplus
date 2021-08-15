@@ -24,11 +24,13 @@ enum BlockType {
 struct Piece {
   BlockType type{BlockType::RED};
   std::vector<std::vector<bool>> shape {
-    {0, 0, 0},
-    {1, 1, 0},
-    {1, 1, 0}
+    {0, 0, 0, 0},
+    {0, 0, 0, 0},
+    {0, 1, 1, 0},
+    {0, 1, 1, 0}
   };
-  // std::pair<int, int> rotationalCenter{}
+  int x { -1 };
+  int y { -2 };
 };
 
 class TetrisBoard {
@@ -39,9 +41,14 @@ class TetrisBoard {
   const int playFieldWidth{(width * squareSize) + 1};
   const int playFieldX{(SCREEN_WIDTH / 3) - 1};
 
+  uint32_t nextUpdate{0};
+  uint32_t currentTime{0};
+
   std::vector<std::vector<BlockType>> board {};
   SDL_Rect playField{playFieldX, 0, playFieldWidth, playFieldHeight};
-  int counter{0};
+
+  // Place holder square piece
+  Piece activePiece;
 
   public:
   TetrisBoard() {
@@ -54,7 +61,31 @@ class TetrisBoard {
   };
 
   void update(float dt) {
-    std::cout<<dt<<std::endl;
+    currentTime += dt;
+    std::cout<<currentTime<<std::endl;
+    if(nextUpdate < currentTime){
+      activePiece.y++;
+      nextUpdate = currentTime + 100;
+    }
+  }
+
+  void renderFallingPiece() {
+    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+    for(auto i = 0; i < 4; ++i) {
+      for(auto j = 0; j < 4; ++j) {
+        if(activePiece.shape[j][i]) {
+          std::cout<<i<<std::endl;
+
+          SDL_Rect rect{};
+          rect.x = (squareSize * (i + activePiece.x)) + playFieldX;
+          rect.y = squareSize * (j + activePiece.y);
+          rect.w = squareSize;
+          rect.h = squareSize;
+
+          SDL_RenderFillRect(gRenderer, &rect);
+        }
+      }
+    }
   }
 
   void renderSquares() {
@@ -95,6 +126,8 @@ class TetrisBoard {
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderClear(gRenderer);
     renderSquares();
+    renderFallingPiece();
+
     SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(gRenderer, &playField);
   }
@@ -139,8 +172,7 @@ int main(int argc, char* args[]) {
         nextIterationTime += SCREEN_TICKS_PER_FRAME;
       }
 
-      // tetrisBoard.update(dt);
-
+      tetrisBoard.update(2);
 
     }
   } catch (std::runtime_error e) {
