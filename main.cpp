@@ -133,7 +133,13 @@ class TetrisBoard {
   }
 
   void mergePieceToBoard() {
-
+    for(auto i = activePiece->canvasSize - 1; i > -1; i--) {
+      for(auto j = activePiece->canvasSize - 1; j > -1; j--) {
+        if(activePiece->shape[j][i]) {
+          board[i + activePiece->x][j + activePiece->y] = activePiece->type;
+        }
+      }
+    }
   }
 
   void update(float dt) {
