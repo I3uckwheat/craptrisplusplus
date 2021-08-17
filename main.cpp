@@ -112,20 +112,24 @@ class TetrisBoard {
 
   bool hasBottomCollided() {
     // Find bottom coords of piece
-    std::vector<std::pair<int, int>> bottomCoords{};
+    std::vector<std::pair<int, int>> pieceBottomCoords{};
     for(auto i = activePiece->canvasSize - 1; i > -1; i--) {
       for(auto j = activePiece->canvasSize - 1; j > -1; j--) {
         if(activePiece->shape[j][i]) {
-          bottomCoords.emplace_back(std::pair<int, int>{i, j});
+          pieceBottomCoords.emplace_back(std::pair<int, int>{i, j});
           break;
         }
       }
     }
 
-    for(auto i = bottomCoords.begin(); i != bottomCoords.end(); i++) {
+    for(auto i = pieceBottomCoords.begin(); i != pieceBottomCoords.end(); i++) {
       auto x = i->first + activePiece->x;
       auto y = i->second + activePiece->y;
       if(y >= height - 1) {
+        return true;
+      }
+
+      if(board[x][y + 1]) {
         return true;
       }
     }
@@ -146,7 +150,7 @@ class TetrisBoard {
     currentTime += dt;
     if(nextUpdate < currentTime){
       activePiece->y++;
-      nextUpdate = currentTime + 100;
+      nextUpdate = currentTime + 40;
     }
 
     if(hasBottomCollided()) {
