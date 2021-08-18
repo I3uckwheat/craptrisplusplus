@@ -23,8 +23,16 @@ enum BlockType {
   PURPLE
 };
 
+enum Direction {
+  LEFT,
+  RIGHT,
+  UP,
+  DOWN
+};
+
 struct Piece {
   virtual ~Piece() {};
+  static const int canvasSize{4};
   BlockType type{BlockType::EMTPY};
   std::vector<std::vector<bool>> shape {
     {0, 0, 0, 0},
@@ -32,9 +40,49 @@ struct Piece {
     {0, 0, 0, 0},
     {0, 0, 0, 0}
   };
-  static const int canvasSize{4};
   int x {0};
   int y {0};
+
+  std::vector<std::pair<int, int>> getPieceRelativeDirectionalCoords(Direction direction) {
+    std::vector<std::pair<int, int>> pieceSideCoords{};
+
+    switch(direction) {
+      case Direction::DOWN:
+        for(auto i = canvasSize - 1; i > -1; i--) {
+          for(auto j = canvasSize - 1; j > -1; j--) {
+            if(shape[j][i]) {
+              pieceSideCoords.emplace_back(std::pair<int, int>{i, j});
+              break;
+            }
+          }
+        }
+        break;
+      case Direction::LEFT:
+        for(auto i = 0; i < canvasSize; i++) {
+          for(auto j = 0; j < canvasSize; j++) {
+            if(shape[j][i]) {
+              pieceSideCoords.emplace_back(std::pair<int, int>{i, j});
+              break;
+            }
+          }
+        }
+        break;
+      case Direction::RIGHT:
+        for(auto i = 0; i < canvasSize; i++) {
+          for(auto j = canvasSize - 1; j > -1; j--) {
+            if(shape[j][i]) {
+              pieceSideCoords.emplace_back(std::pair<int, int>{i, j});
+              break;
+            }
+          }
+        }
+        break;
+      case Direction::UP:
+        break;
+    }
+
+    return pieceSideCoords;
+  }
 };
 
 struct SquarePiece : public Piece {
@@ -72,9 +120,9 @@ struct TPiece : public Piece {
     type = BlockType::PURPLE;
     shape = {
       {0, 0, 0, 0},
-      {0, 0, 0, 0},
       {0, 1, 0, 0},
-      {1, 1, 1, 0}
+      {1, 1, 1, 0},
+      {0, 0, 0, 0}
     };
 
     x = 0;
@@ -111,17 +159,7 @@ class TetrisBoard {
   ~TetrisBoard() {}
 
   bool hasBottomCollided() {
-    // Find bottom coords of piece
-    std::vector<std::pair<int, int>> pieceBottomCoords{};
-    for(auto i = activePiece->canvasSize - 1; i > -1; i--) {
-      for(auto j = activePiece->canvasSize - 1; j > -1; j--) {
-        if(activePiece->shape[j][i]) {
-          pieceBottomCoords.emplace_back(std::pair<int, int>{i, j});
-          break;
-        }
-      }
-    }
-
+    auto pieceBottomCoords = activePiece->getPieceRelativeDirectionalCoords(Direction::DOWN);
     for(auto i = pieceBottomCoords.begin(); i != pieceBottomCoords.end(); i++) {
       auto x = i->first + activePiece->x;
       auto y = i->second + activePiece->y;
@@ -143,6 +181,54 @@ class TetrisBoard {
           board[i + activePiece->x][j + activePiece->y] = activePiece->type;
         }
       }
+    }
+  }
+
+  bool willHaveXCollision(Direction direction) {
+    int newX{ activePiece->x };
+    switch(direction) {
+      case Direction::LEFT:
+        newX--;
+        break;
+      case Direction::RIGHT:
+        newX++;
+        break;
+    }
+    
+    auto pieceCoords = activePiece->getPieceRelativeDirectionalCoords(Direction::LEFT);
+    for(auto i = pieceCoords.begin(); i != pieceCoords.end(); i++) {
+      auto y = i->second + activePiece->y;
+      auto x = i->first + newX;
+
+      if(
+        x < 0  // left bounds
+        || x > width - 1 // right bounds
+        || board.at(x).at(y) // piece bounds
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  void move(SDL_Keycode key) {
+    switch(key) {
+      case SDLK_LEFT:
+        if(!willHaveXCollision(Direction::LEFT)) {
+          activePiece->x--;
+        }
+        break;
+      case SDLK_RIGHT:
+        if(!willHaveXCollision(Direction::RIGHT)) {
+          activePiece->x++;
+        }
+        break;
+      case SDLK_UP:
+        // TODO Rotate
+        break;
+      case SDLK_DOWN:
+        break;
     }
   }
 
@@ -258,6 +344,8 @@ int main(int argc, char* args[]) {
       while(SDL_PollEvent(&e) != 0) {
         if(e.type == SDL_QUIT) {
           quit = true;
+        } else if (e.type == SDL_KEYDOWN) {
+          tetrisBoard.move(e.key.keysym.sym);
         }
       }
 
