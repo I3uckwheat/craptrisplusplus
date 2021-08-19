@@ -4,6 +4,7 @@
 #include <exception>
 #include <cstdint>
 #include <memory>
+#include <random>
 
 const int SCREEN_WIDTH{ 640 };
 const int SCREEN_HEIGHT{ 480 };
@@ -33,6 +34,7 @@ enum Direction {
 struct Piece {
   virtual ~Piece() {};
   static const int canvasSize{4};
+  static const int totalPieces{3};
   BlockType type{BlockType::EMTPY};
   std::vector<std::vector<bool>> shape {
     {0, 0, 0, 0},
@@ -138,6 +140,9 @@ class TetrisBoard {
   const int playFieldWidth{(width * squareSize) + 1};
   const int playFieldX{(SCREEN_WIDTH / 3) - 1};
 
+  std::mt19937 rgen;
+  std::uniform_int_distribution<int> randomPiece;
+
   uint32_t nextUpdate{0};
   uint32_t currentTime{0};
 
@@ -148,13 +153,18 @@ class TetrisBoard {
 
   public:
   TetrisBoard() {
-    activePiece.reset(new LinePiece{});
+    std::random_device rseed;
+    rgen = std::mt19937(rseed());
+    randomPiece = std::uniform_int_distribution<int>(1, Piece::totalPieces);
+
     for(auto i = 0; i < width; i++) {
       board.emplace_back(std::vector<BlockType>{});
       for(auto j = 0; j < height; j++) {
         board[i].emplace_back(BlockType::EMTPY);
       }
     }
+
+    setNextPiece();
   }
   ~TetrisBoard() {}
 
@@ -232,6 +242,22 @@ class TetrisBoard {
     }
   }
 
+  void setNextPiece() {
+    switch(randomPiece(rgen)) {
+      case 1:
+        activePiece.reset(new SquarePiece{});
+        break;
+      case 2:
+        activePiece.reset(new LinePiece{});
+        break;
+      case 3:
+        activePiece.reset(new TPiece{});
+        break;
+      default:
+        activePiece.reset(new TPiece{});
+    }
+  }
+
   void update(float dt) {
     currentTime += dt;
     if(nextUpdate < currentTime){
@@ -241,9 +267,7 @@ class TetrisBoard {
 
     if(hasBottomCollided()) {
       mergePieceToBoard();
-
-      // TODO: Random piece
-      activePiece.reset(new TPiece{});
+      setNextPiece();
     }
   }
 
