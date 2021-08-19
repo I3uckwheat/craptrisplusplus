@@ -21,7 +21,8 @@ enum BlockType {
   RED,
   GREEN,
   BLUE,
-  PURPLE
+  PURPLE,
+  YELLOW
 };
 
 enum Direction {
@@ -34,7 +35,7 @@ enum Direction {
 struct Piece {
   virtual ~Piece() {};
   static const int canvasSize{4};
-  static const int totalPieces{3};
+  static const int totalPieces{5};
   BlockType type{BlockType::EMTPY};
   std::vector<std::vector<bool>> shape {
     {0, 0, 0, 0},
@@ -124,6 +125,36 @@ struct TPiece : public Piece {
       {0, 0, 0, 0},
       {0, 1, 0, 0},
       {1, 1, 1, 0},
+      {0, 0, 0, 0}
+    };
+
+    x = 0;
+    y = 0;
+  }
+};
+
+struct LPiece : public Piece {
+  LPiece() {
+    type = BlockType::RED;
+    shape = {
+      {0, 0, 0, 0},
+      {0, 1, 0, 0},
+      {0, 1, 0, 0},
+      {0, 1, 1, 0}
+    };
+
+    x = 0;
+    y = 0;
+  }
+};
+
+struct ZPiece : public Piece {
+  ZPiece() {
+    type = BlockType::YELLOW;
+    shape = {
+      {0, 0, 0, 0},
+      {1, 1, 0, 0},
+      {0, 1, 1, 0},
       {0, 0, 0, 0}
     };
 
@@ -253,6 +284,12 @@ class TetrisBoard {
       case 3:
         activePiece.reset(new TPiece{});
         break;
+      case 4:
+        activePiece.reset(new LPiece{});
+        break;
+      case 5:
+        activePiece.reset(new ZPiece{});
+        break;
       default:
         activePiece.reset(new TPiece{});
     }
@@ -262,7 +299,7 @@ class TetrisBoard {
     currentTime += dt;
     if(nextUpdate < currentTime){
       activePiece->y++;
-      nextUpdate = currentTime + 40;
+      nextUpdate = currentTime + 20;
     }
 
     if(hasBottomCollided()) {
@@ -284,6 +321,9 @@ class TetrisBoard {
         break;
       case BlockType::PURPLE:
         SDL_SetRenderDrawColor(gRenderer, 128, 0, 128, 255);
+        break;
+      case BlockType::YELLOW:
+        SDL_SetRenderDrawColor(gRenderer, 255, 255, 0, 255);
         break;
       default:
         SDL_SetRenderDrawColor(gRenderer, 100, 100, 100, 100);
