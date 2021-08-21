@@ -6,6 +6,8 @@
 #include <memory>
 #include <random>
 
+#include<./Pieces/Piece.hh>
+
 const int SCREEN_WIDTH{ 640 };
 const int SCREEN_HEIGHT{ 480 };
 const int SCREEN_FPS{ 24 };
@@ -16,151 +18,13 @@ SDL_Renderer* gRenderer{NULL};
 
 void init();
 
-enum BlockType {
-  EMTPY,
-  RED,
-  GREEN,
-  BLUE,
-  PURPLE,
-  YELLOW
-};
+using BlockType = PieceEnums::BlockType;
 
 enum Direction {
   LEFT,
   RIGHT,
   UP,
   DOWN
-};
-
-struct Piece {
-  virtual ~Piece() {};
-  static const int canvasSize{4};
-  static const int totalPieces{5};
-  BlockType type{BlockType::EMTPY};
-  std::vector<std::vector<bool>> shape {
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0}
-  };
-  int x {0};
-  int y {0};
-
-  std::vector<std::pair<int, int>> getPieceRelativeDirectionalCoords(Direction direction) {
-    std::vector<std::pair<int, int>> pieceSideCoords{};
-
-    switch(direction) {
-      case Direction::DOWN:
-        for(auto i = canvasSize - 1; i > -1; i--) {
-          for(auto j = canvasSize - 1; j > -1; j--) {
-            if(shape[j][i]) {
-              pieceSideCoords.emplace_back(std::pair<int, int>{i, j});
-              break;
-            }
-          }
-        }
-        break;
-      case Direction::LEFT:
-        for(auto i = 0; i < canvasSize; i++) {
-          for(auto j = 0; j < canvasSize; j++) {
-            if(shape[j][i]) {
-              pieceSideCoords.emplace_back(std::pair<int, int>{i, j});
-              break;
-            }
-          }
-        }
-        break;
-      case Direction::RIGHT:
-        for(auto i = 0; i < canvasSize; i++) {
-          for(auto j = canvasSize - 1; j > -1; j--) {
-            if(shape[j][i]) {
-              pieceSideCoords.emplace_back(std::pair<int, int>{i, j});
-              break;
-            }
-          }
-        }
-        break;
-      case Direction::UP:
-        break;
-    }
-
-    return pieceSideCoords;
-  }
-};
-
-struct SquarePiece : public Piece {
-  SquarePiece() {
-    type = BlockType::GREEN;
-    shape = {
-      {0, 0, 0, 0},
-      {0, 0, 0, 0},
-      {0, 1, 1, 0},
-      {0, 1, 1, 0}
-    };
-
-    x = 0;
-    y = 0;
-  }
-};
-
-struct LinePiece : public Piece {
-  LinePiece() {
-    type = BlockType::BLUE;
-    shape = {
-      {0, 1, 0, 0},
-      {0, 1, 0, 0},
-      {0, 1, 0, 0},
-      {0, 1, 0, 0}
-    };
-
-    x = 0;
-    y = 0;
-  }
-};
-
-struct TPiece : public Piece {
-  TPiece() {
-    type = BlockType::PURPLE;
-    shape = {
-      {0, 0, 0, 0},
-      {0, 1, 0, 0},
-      {1, 1, 1, 0},
-      {0, 0, 0, 0}
-    };
-
-    x = 0;
-    y = 0;
-  }
-};
-
-struct LPiece : public Piece {
-  LPiece() {
-    type = BlockType::RED;
-    shape = {
-      {0, 0, 0, 0},
-      {0, 1, 0, 0},
-      {0, 1, 0, 0},
-      {0, 1, 1, 0}
-    };
-
-    x = 0;
-    y = 0;
-  }
-};
-
-struct ZPiece : public Piece {
-  ZPiece() {
-    type = BlockType::YELLOW;
-    shape = {
-      {0, 0, 0, 0},
-      {1, 1, 0, 0},
-      {0, 1, 1, 0},
-      {0, 0, 0, 0}
-    };
-
-    x = 0;
-    y = 0;
-  }
 };
 
 class TetrisBoard {
@@ -200,7 +64,7 @@ class TetrisBoard {
   ~TetrisBoard() {}
 
   bool hasBottomCollided() {
-    auto pieceBottomCoords = activePiece->getPieceRelativeDirectionalCoords(Direction::DOWN);
+    auto pieceBottomCoords = activePiece->getPieceRelativeDirectionalCoords(PieceEnums::Direction::BOTTOM);
     for(auto i = pieceBottomCoords.begin(); i != pieceBottomCoords.end(); i++) {
       auto x = i->first + activePiece->x;
       auto y = i->second + activePiece->y;
@@ -236,7 +100,7 @@ class TetrisBoard {
         break;
     }
     
-    auto pieceCoords = activePiece->getPieceRelativeDirectionalCoords(Direction::LEFT);
+    auto pieceCoords = activePiece->getPieceRelativeDirectionalCoords(PieceEnums::Direction::LEFT);
     for(auto i = pieceCoords.begin(); i != pieceCoords.end(); i++) {
       auto y = i->second + activePiece->y;
       auto x = i->first + newX;
