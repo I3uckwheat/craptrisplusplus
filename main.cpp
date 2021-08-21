@@ -274,7 +274,8 @@ class TetrisBoard {
   }
 
   void setNextPiece() {
-    switch(randomPiece(rgen)) {
+    // switch(randomPiece(rgen)) {
+    switch(1) {
       case 1:
         activePiece.reset(new SquarePiece{});
         break;
@@ -295,6 +296,31 @@ class TetrisBoard {
     }
   }
 
+  // bool isLineComplete(const std::vector<BlockType>& line) {
+  //   std::cout<<"lineSize in isCOmplete: "<<line.size()<<std::endl;
+  //   for(auto i = line.begin(); i < line.end(); i++) {
+  //     std::cout<<*i<<" | "<<static_cast<BlockType>(*i)<<std::endl;
+  //     if(static_cast<BlockType>(*i) == BlockType::EMTPY) {
+  //       return false;
+  //     }
+  //   }
+
+  //   return true;
+  // }
+
+  // void clearCompletedLines() {
+  //   auto result = isLineComplete(board[0]);
+  //   std::cout<<result<<std::endl;
+  //   result = isLineComplete(board[12]);
+  //   std::cout<<result<<std::endl;
+  //   // auto i = height - 1;
+  //   // while(i > 0) {
+  //   //   auto lineIsCompleted = isLineComplete(board[i]);
+  //   //   if(lineIsCompleted) std::cout<<"is complete"<<std::endl;
+  //   //   i--;
+  //   // }
+  // }
+
   void update(float dt) {
     currentTime += dt;
     if(nextUpdate < currentTime){
@@ -305,6 +331,7 @@ class TetrisBoard {
     if(hasBottomCollided()) {
       mergePieceToBoard();
       setNextPiece();
+      // clearCompletedLines();
     }
   }
 

@@ -5,8 +5,10 @@ OBJS = main.cpp
 CC = g++
 
 COMPILER_FLAGS = -w
+# COMPILER_FLAGS = $(shell sdl2-config --cflags)
 
-LINKER_FLAGS = -lSDL2 -lSDL2_image
+LINKER_FLAGS = -lSDL2 
+# LINKER_FLAGS = -L/usr/local/lib -l:libSDL2.a -lm -ldl -lpthread -lrt
 
 #OBJ_NAME specifies the name of our executable
 OBJ_NAME = tetris
