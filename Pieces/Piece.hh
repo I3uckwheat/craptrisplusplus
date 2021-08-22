@@ -31,5 +31,5 @@ struct Piece {
   PieceEnums::BlockType type;
 
   std::vector<std::vector<bool>> shape;
-  std::vector<std::pair<int, int>> getPieceRelativeDirectionalCoords(PieceEnums::Direction direction);
+  std::vector<std::pair<int, int>> getPieceCoords();
 };

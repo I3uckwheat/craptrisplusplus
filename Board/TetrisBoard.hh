@@ -58,8 +58,8 @@ class TetrisBoard {
   ~TetrisBoard() {}
 
   bool willBottomCollide() {
-    auto pieceBottomCoords = activePiece->getPieceRelativeDirectionalCoords(PieceEnums::Direction::BOTTOM);
-    for(auto pieceCoord = pieceBottomCoords.begin(); pieceCoord != pieceBottomCoords.end(); pieceCoord++) {
+    auto pieceCoords = activePiece->getPieceCoords();
+    for(auto pieceCoord = pieceCoords.begin(); pieceCoord != pieceCoords.end(); pieceCoord++) {
       auto row = pieceCoord->first + activePiece->row;
       auto col = pieceCoord->second + activePiece->col;
       if(row >= height - 1) {
@@ -94,14 +94,14 @@ class TetrisBoard {
         break;
     }
     
-    auto pieceCoords = activePiece->getPieceRelativeDirectionalCoords(PieceEnums::Direction::LEFT);
+    auto pieceCoords = activePiece->getPieceCoords();
     for(auto i = pieceCoords.begin(); i != pieceCoords.end(); i++) {
       auto row = i->first + activePiece->row;
       auto col = i->second + newColumn;
 
       if(
         col < 0  // left bounds
-        || col >= width - 1 // right bounds
+        || col >= width // right bounds
         || board.at(row).at(col) // piece bounds
       ) {
         return true;
