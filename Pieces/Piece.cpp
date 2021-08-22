@@ -12,37 +12,37 @@ Piece::Piece(
   ) : 
   type{type}, 
   shape{shape},
-  x{0},
-  y{0} {};	 
+  row{0},
+  col{0} {};	 
 
 std::vector<std::pair<int, int>> Piece::getPieceRelativeDirectionalCoords(PieceEnums::Direction direction) {
  std::vector<std::pair<int, int>> pieceSideCoords{};
     switch(direction) {
       case PieceEnums::Direction::BOTTOM:
-        for(auto i = canvasSize - 1; i > -1; i--) {
-          for(auto j = canvasSize - 1; j > -1; j--) {
-            if(shape[j][i]) {
-              pieceSideCoords.emplace_back(std::pair<int, int>{i, j});
+        for(auto row = canvasSize - 1; row > -1; row--) {
+          for(auto col = canvasSize - 1; col > -1; col--) {
+            if(shape[row][col]) {
+              pieceSideCoords.emplace_back(std::pair<int, int>{row, col});
               break;
             }
           }
         }
         break;
       case PieceEnums::Direction::LEFT:
-        for(auto i = 0; i < canvasSize; i++) {
-          for(auto j = 0; j < canvasSize; j++) {
-            if(shape[j][i]) {
-              pieceSideCoords.emplace_back(std::pair<int, int>{i, j});
+        for(auto row = 0; row < canvasSize; row++) {
+          for(auto col = 0; col < canvasSize; col++) {
+            if(shape[row][col]) {
+              pieceSideCoords.emplace_back(std::pair<int, int>{row, col});
               break;
             }
           }
         }
         break;
       case PieceEnums::Direction::RIGHT:
-        for(auto i = 0; i < canvasSize; i++) {
-          for(auto j = canvasSize - 1; j > -1; j--) {
-            if(shape[j][i]) {
-              pieceSideCoords.emplace_back(std::pair<int, int>{i, j});
+        for(auto row = 0; row < canvasSize; row++) {
+          for(auto col = canvasSize - 1; col > -1; col--) {
+            if(shape[row][col]) {
+              pieceSideCoords.emplace_back(std::pair<int, int>{row, col});
               break;
             }
           }

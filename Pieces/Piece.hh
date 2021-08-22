@@ -22,8 +22,8 @@ namespace PieceEnums {
 
 struct Piece {
   Piece(PieceEnums::BlockType type, std::vector<std::vector<bool>> shape);
-  int x;
-  int y;
+  int row;
+  int col;
   static const int canvasSize{4};
   static const int totalPieces{5};
 
