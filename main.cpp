@@ -6,7 +6,8 @@
 #include <memory>
 #include <random>
 
-#include<./Pieces/Piece.hh>
+#include <./Pieces/Piece.hh>
+#include <./Pieces/PieceFactory.hh>
 
 const int SCREEN_WIDTH{ 640 };
 const int SCREEN_HEIGHT{ 480 };
@@ -50,12 +51,12 @@ class TetrisBoard {
   TetrisBoard() {
     std::random_device rseed;
     rgen = std::mt19937(rseed());
-    randomPiece = std::uniform_int_distribution<int>(1, Piece::totalPieces);
+    randomPiece = std::uniform_int_distribution<int>(0, pieceFactories.size() - 1);
 
     for(auto i = 0; i < width; i++) {
       board.emplace_back(std::vector<BlockType>{});
       for(auto j = 0; j < height; j++) {
-        board[i].emplace_back(BlockType::EMTPY);
+        board[i].emplace_back(BlockType::EMPTY);
       }
     }
 
@@ -138,26 +139,7 @@ class TetrisBoard {
   }
 
   void setNextPiece() {
-    // switch(randomPiece(rgen)) {
-    switch(1) {
-      case 1:
-        activePiece.reset(new SquarePiece{});
-        break;
-      case 2:
-        activePiece.reset(new LinePiece{});
-        break;
-      case 3:
-        activePiece.reset(new TPiece{});
-        break;
-      case 4:
-        activePiece.reset(new LPiece{});
-        break;
-      case 5:
-        activePiece.reset(new ZPiece{});
-        break;
-      default:
-        activePiece.reset(new TPiece{});
-    }
+    activePiece.reset(pieceFactories[randomPiece(rgen)].create());
   }
 
   // bool isLineComplete(const std::vector<BlockType>& line) {
@@ -249,7 +231,7 @@ class TetrisBoard {
 
         auto block = board[i][j];
         setBlockColor(block);
-        if(block == BlockType::EMTPY) {
+        if(block == BlockType::EMPTY) {
           SDL_RenderDrawRect(gRenderer, &rect);
         } else {
           SDL_RenderFillRect(gRenderer, &rect);

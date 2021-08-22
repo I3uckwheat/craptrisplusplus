@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <memory>
 
@@ -10,7 +11,7 @@ namespace PieceEnums {
   };
 
   enum BlockType {
-    EMTPY,
+    EMPTY,
     RED,
     GREEN,
     BLUE,
@@ -20,7 +21,7 @@ namespace PieceEnums {
 } 
 
 struct Piece {
-  Piece();
+  Piece(PieceEnums::BlockType type, std::vector<std::vector<bool>> shape);
   int x;
   int y;
   static const int canvasSize{4};
@@ -31,24 +32,4 @@ struct Piece {
 
   std::vector<std::vector<bool>> shape;
   std::vector<std::pair<int, int>> getPieceRelativeDirectionalCoords(PieceEnums::Direction direction);
-};
-
-struct SquarePiece : public Piece {
-  SquarePiece();
-};
-
-struct LinePiece : public Piece {
-  LinePiece();
-};
-
-struct LPiece : public Piece {
-  LPiece();
-};
-
-struct TPiece : public Piece {
-  TPiece();
-};
-
-struct ZPiece : public Piece {
-  ZPiece();
 };
