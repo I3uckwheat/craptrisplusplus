@@ -1,5 +1,5 @@
 #OBJS specifies which files to compile as part of the project
-OBJS = main.cpp Pieces/Piece.cpp
+OBJS = main.cpp Pieces/Piece.cpp Board/TetrisBoard.cpp Pieces/PieceFactory.cpp
 
 #CC specifies our compiler
 CC = g++
