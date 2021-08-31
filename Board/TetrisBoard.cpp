@@ -127,30 +127,42 @@ void TetrisBoard::setNextPiece()
   activePiece.reset(PieceFactory::pieceFactories[pieceRandomizer(rgen)].create());
 }
 
-// bool isLineComplete(const std::vector<BlockType>& line) {
-//   std::cout<<"lineSize in isCOmplete: "<<line.size()<<std::endl;
-//   for(auto i = line.begin(); i < line.end(); i++) {
-//     std::cout<<*i<<" | "<<static_cast<BlockType>(*i)<<std::endl;
-//     if(static_cast<BlockType>(*i) == BlockType::EMTPY) {
-//       return false;
-//     }
-//   }
+bool TetrisBoard::isLineComplete(const std::vector<BlockType>& line) {
+  for(auto i = line.begin(); i < line.end(); i++) {
+    if(static_cast<BlockType>(*i) == BlockType::EMPTY) {
+      return false;
+    }
+  }
 
-//   return true;
-// }
+  return true;
+}
 
-// void clearCompletedLines() {
-//   auto result = isLineComplete(board[0]);
-//   std::cout<<result<<std::endl;
-//   result = isLineComplete(board[12]);
-//   std::cout<<result<<std::endl;
-//   // auto i = height - 1;
-//   // while(i > 0) {
-//   //   auto lineIsCompleted = isLineComplete(board[i]);
-//   //   if(lineIsCompleted) std::cout<<"is complete"<<std::endl;
-//   //   i--;
-//   // }
-// }
+std::vector<int> TetrisBoard::locateCompletedLines() {
+  std::vector<int> completedLines{};
+
+  for(auto i = 0; i < height; i++) {
+    if(isLineComplete(board.at(i))) {
+      completedLines.push_back(i);
+    }
+  }
+
+  return completedLines;
+}
+
+int TetrisBoard::getInverseIndex(int index, int maxIndex) {
+  auto middle = maxIndex / 2;
+  return (-(index - middle) + middle) + 1;
+}
+
+void TetrisBoard::clearCompletedLines() {
+  auto completedLines = locateCompletedLines();
+  for(auto& i : completedLines) {
+    auto reverseIndex = getInverseIndex(i, height - 1);
+    for(auto line = board.rbegin() + reverseIndex; line != board.rend() - 1; line++) {
+      *line = *(line + 1);
+    }
+  }
+}
 
 void TetrisBoard::update(float dt)
 {
@@ -165,7 +177,7 @@ void TetrisBoard::update(float dt)
   {
     mergePieceToBoard();
     setNextPiece();
-    // clearCompletedLines();
+    clearCompletedLines();
   }
 }
 

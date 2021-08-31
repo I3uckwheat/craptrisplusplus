@@ -11,6 +11,8 @@
 
 using BlockType = PieceEnums::BlockType;
 
+typedef std::vector<std::vector<BlockType>> Board;
+
 enum Direction {
   LEFT,
   RIGHT,
@@ -45,7 +47,10 @@ class TetrisBoard {
   void setBlockColor(BlockType type);
   void renderFallingPiece();
   void renderSquares();
-
+  void clearCompletedLines();
+  bool isLineComplete(const std::vector<BlockType>& line);
+  std::vector<int> locateCompletedLines();
+  int getInverseIndex(int index, int maxIndex);
 
 public:
   TetrisBoard(SDL_Renderer* grenderer); 
