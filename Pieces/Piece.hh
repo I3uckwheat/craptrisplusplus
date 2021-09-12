@@ -32,4 +32,5 @@ struct Piece {
 
   std::vector<std::vector<bool>> shape;
   std::vector<std::pair<int, int>> getPieceCoords();
+  void rotatePiece();
 };

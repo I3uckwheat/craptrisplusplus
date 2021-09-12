@@ -27,3 +27,33 @@ std::vector<std::pair<int, int>> Piece::getPieceCoords() {
 
   return pieceCoords;
 };
+
+void Piece::rotatePiece() {
+  int layerCount = canvasSize / 2;
+
+  for(auto layer = 0; layer < layerCount; layer++) {
+    int first = layer;
+    int last = canvasSize - first - 1;
+
+    for(auto element = first; element < last; element++) {
+      int offset = element - first;
+
+      bool top = shape[first][element];
+      bool right = shape[element][last];
+      bool bottom = shape[last][last-offset];
+      bool left = shape[last-offset][first];
+
+      // top
+      shape[first][element] = left;
+
+      // right
+      shape[element][last] = top;
+
+      // bottom
+      shape[last][last-offset] = right;
+
+      // left
+      shape[last-offset][first] = bottom;
+    }
+  }
+}

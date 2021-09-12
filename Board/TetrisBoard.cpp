@@ -115,7 +115,7 @@ void TetrisBoard::move(SDL_Keycode key)
     }
     break;
   case SDLK_UP:
-    // TODO Rotate
+    activePiece->rotatePiece();
     break;
   case SDLK_DOWN:
     break;

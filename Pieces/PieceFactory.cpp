@@ -19,9 +19,9 @@ std::vector<PieceFactory> PieceFactory::pieceFactories {
   // Square Piece
   PieceFactory{PieceEnums::BlockType::GREEN, {
     {0, 0, 0, 0},
-    {0, 0, 0, 0},
     {0, 1, 1, 0},
-    {0, 1, 1, 0}
+    {0, 1, 1, 0},
+    {0, 0, 0, 0}
   }},
 
   // Line Piece
