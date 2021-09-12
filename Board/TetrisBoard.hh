@@ -51,6 +51,7 @@ class TetrisBoard {
   bool isLineComplete(const std::vector<BlockType>& line);
   std::vector<int> locateCompletedLines();
   int getInverseIndex(int index, int maxIndex);
+  void adjustOutOfBounds();
 
 public:
   TetrisBoard(SDL_Renderer* grenderer); 

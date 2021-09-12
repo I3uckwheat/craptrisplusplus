@@ -98,30 +98,6 @@ bool TetrisBoard::willHaveXCollision(Direction direction)
   return false;
 }
 
-void TetrisBoard::move(SDL_Keycode key)
-{
-  switch (key)
-  {
-  case SDLK_LEFT:
-    if (!willHaveXCollision(Direction::LEFT))
-    {
-      activePiece->col--;
-    }
-    break;
-  case SDLK_RIGHT:
-    if (!willHaveXCollision(Direction::RIGHT))
-    {
-      activePiece->col++;
-    }
-    break;
-  case SDLK_UP:
-    activePiece->rotatePiece();
-    break;
-  case SDLK_DOWN:
-    break;
-  }
-}
-
 void TetrisBoard::setNextPiece()
 {
   activePiece.reset(PieceFactory::pieceFactories[pieceRandomizer(rgen)].create());
@@ -161,23 +137,6 @@ void TetrisBoard::clearCompletedLines() {
     for(auto line = board.rbegin() + reverseIndex; line != board.rend() - 1; line++) {
       *line = *(line + 1);
     }
-  }
-}
-
-void TetrisBoard::update(float dt)
-{
-  currentTime += dt;
-  if (nextUpdate < currentTime)
-  {
-    activePiece->row++;
-    nextUpdate = currentTime + 20;
-  }
-
-  if (willBottomCollide())
-  {
-    mergePieceToBoard();
-    setNextPiece();
-    clearCompletedLines();
   }
 }
 
@@ -250,6 +209,69 @@ void TetrisBoard::renderSquares()
       }
     }
   }
+}
+
+void TetrisBoard::update(float dt)
+{
+  currentTime += dt;
+  if (nextUpdate < currentTime)
+  {
+    activePiece->row++;
+    nextUpdate = currentTime + 20;
+  }
+
+  if (willBottomCollide())
+  {
+    mergePieceToBoard();
+    setNextPiece();
+    clearCompletedLines();
+  }
+}
+
+void TetrisBoard::adjustOutOfBounds() 
+{
+  auto pieceCoords = activePiece->getPieceCoords();
+
+  int outOfBoundsDistance{0};
+  for (auto i = pieceCoords.begin(); i != pieceCoords.end(); i++) 
+  {
+    auto row = i->first + activePiece->row;
+    auto col = i->second + activePiece->col;
+
+    if(col < 0 && col < outOfBoundsDistance) {
+      outOfBoundsDistance = col;
+    } else if((col > width - 1) && ((col - width) + 1 > outOfBoundsDistance)) {
+      outOfBoundsDistance = (col - width) + 1;
+    }
+  }
+
+  activePiece->col += -outOfBoundsDistance;
+}
+
+void TetrisBoard::move(SDL_Keycode key)
+{
+  switch (key)
+  {
+  case SDLK_LEFT:
+    if (!willHaveXCollision(Direction::LEFT))
+    {
+      activePiece->col--;
+    }
+    break;
+  case SDLK_RIGHT:
+    if (!willHaveXCollision(Direction::RIGHT))
+    {
+      activePiece->col++;
+    }
+    break;
+  case SDLK_UP:
+    activePiece->rotatePiece();
+    adjustOutOfBounds();
+    break;
+  case SDLK_DOWN:
+    break;
+  }
+
 }
 
 void TetrisBoard::render()
